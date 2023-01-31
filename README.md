@@ -1,12 +1,23 @@
-# minikvm
-The smallest possible way to control a server using a rasspberrypie
-Currently only manuel controll is fully working.
-The only thing requierd for it to work is a dual channel relay wich can be cheaply bought.
+# RaspberryPi Server Control
 
-ToDo:
+This program allows you to control a PC or server using a Raspberry Pi and a dual channel relay. The current version supports manual control only, but there are plans to add automatic maintenance and async support in the future.
+Features
 
-☑️ Add automatik up keeping
+- Manual control of a PC or server using a Raspberry Pi and a dual channel relay
+- Plans to add automatic maintenance and async support
 
-☑️ Add async 
+# Requirements
 
-☑️ Add server to interact in a better way
+- Raspberry Pi
+- Dual channel relay
+
+# To Do
+
+- Add automatic maintenance
+- Add async support
+
+- Add a server for better interaction
+
+# Getting Started
+
+To get started, clone the repository and follow the instructions to set up your Raspberry Pi and relay. Then, run the program to control your PC or server.
