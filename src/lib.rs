@@ -71,19 +71,23 @@ impl Server {
             return Ok(());
         };
         self.start();
-        sleep(Duration::from_secs(10));
+        sleep(Duration::from_secs(30));
         if self.ping() == true {
+            println!("server startet after powering on");
             return Ok(());
         };
         self.restart();
-        sleep(Duration::from_secs(10));
+        sleep(Duration::from_secs(30));
         if self.ping() == true {
+            println!("server startet after rebooting");
             return Ok(());
         };
         self.shutdown();
         sleep(Duration::from_millis(500));
         self.start();
+        sleep(Duration::from_secs(30));
         if self.ping() == true {
+            println!("server startet after force reboot");
             return Ok(());
         } else {
             Err("couldnt start server")
@@ -127,7 +131,7 @@ pub fn manuel(server: &Server) -> i8 {
             3 => server.shutdown(),
             4 => return 1,
             5 => return -1,
-            _ => (),
+            _ => continue,
         };
     }
 }
