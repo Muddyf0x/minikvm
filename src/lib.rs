@@ -1,8 +1,9 @@
-use std::thread::sleep;
 use ping::ping;
+use std::io;
+use std::net::IpAddr;
+use std::thread::sleep;
 use std::time::Duration;
 use sysfs_gpio::{Direction, Pin};
-use std::net::IpAddr;
 
 pub struct Server {
     reset: Pin,
@@ -14,7 +15,7 @@ pub struct Server {
 impl Server {
     pub fn new(reset: Pin, power: Pin, ip: IpAddr) -> Server {
         let status = match ping(ip, Some(Duration::from_secs(5)), None, None, None, None) {
-            Ok(_) => true, 
+            Ok(_) => true,
             Err(_) => false,
         };
         reset.export().unwrap();
@@ -28,47 +29,61 @@ impl Server {
             status,
         }
     }
-    pub fn start(&self) {
+    fn start(&self) {
         press_pin(self.power, Duration::from_millis(500));
     }
-    pub fn restart(&self) {
+    fn restart(&self) {
         press_pin(self.reset, Duration::from_millis(500));
     }
-    pub fn shutdown(&self) {
+    fn shutdown(&self) {
         press_pin(self.power, Duration::from_secs(5));
     }
-    
-    pub fn get_status(mut self) -> bool {
-        self.status = match ping(self.ip, Some(Duration::from_secs(5)), None, None, None, None) {
-            Ok(_) => true, 
+
+    fn _get_status(mut self) -> bool {
+        self.status = match ping(
+            self.ip,
+            Some(Duration::from_secs(5)),
+            None,
+            None,
+            None,
+            None,
+        ) {
+            Ok(_) => true,
             Err(_) => false,
         };
         self.status
     }
-    pub fn ping(&self) -> bool {
-        match ping(self.ip, Some(Duration::from_secs(5)), None, None, None, None) {
-            Ok(_) => true, 
+    fn ping(&self) -> bool {
+        match ping(
+            self.ip,
+            Some(Duration::from_secs(5)),
+            None,
+            None,
+            None,
+            None,
+        ) {
+            Ok(_) => true,
             Err(_) => false,
         }
     }
-    pub fn get_up(&self) -> Result<(), &'static str> {
+    fn get_up(&self) -> Result<(), &'static str> {
         if self.ping() == true {
-            return Ok(())
+            return Ok(());
         };
         self.start();
         sleep(Duration::from_secs(10));
         if self.ping() == true {
-            return Ok(())
+            return Ok(());
         };
         self.restart();
         if self.ping() == true {
-            return Ok(())
+            return Ok(());
         };
         self.shutdown();
         sleep(Duration::from_millis(500));
         self.start();
         if self.ping() == true {
-            return Ok(())
+            return Ok(());
         } else {
             Err("couldnt start server")
         }
@@ -79,4 +94,39 @@ fn press_pin(pin: Pin, dur: Duration) -> () {
     pin.set_value(0).unwrap();
     sleep(dur);
     pin.set_value(1).unwrap();
-} 
+}
+
+pub fn auto(server: &Server) {
+    server.get_up().unwrap();
+    sleep(Duration::from_secs(30));
+}
+
+pub fn manuel(server: &Server) -> i8 {
+    loop {
+        println!(
+            "1. Start
+2. reboot 
+3. shutdwon
+4. auto
+5. exit
+"
+        );
+        let mut com = String::new();
+        io::stdin()
+            .read_line(&mut com)
+            .expect("Failed to read line");
+        let com: u32 = match com.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+        match com {
+            1 => server.start(),
+            2 => server.restart(),
+            3 => server.shutdown(),
+            4 => return 1,
+            5 => return -1,
+            _ => (),
+        };
+    }
+}
