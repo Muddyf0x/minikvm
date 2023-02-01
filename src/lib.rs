@@ -76,6 +76,7 @@ impl Server {
             return Ok(());
         };
         self.restart();
+        sleep(Duration::from_secs(10));
         if self.ping() == true {
             return Ok(());
         };
